@@ -172,3 +172,65 @@ const invoiceResponse: ApiResponse<{ email: string; amount: number }> = {
 };
 
 // Типізація промісів
+interface User2 {
+  id: number;
+  name: string;
+}
+
+const getUser = (): Promise<User2> => {
+  return new Promise(resolve => {
+    setTimeout(() => resolve({ id: 1, name: "Alice" }), 1000);
+  });
+};
+
+getUser().then(user => console.log(user.name)); // "Alice"
+
+//
+interface Product {
+  id: number;
+  title: string;
+}
+
+const getProducts = (): Promise<Product[]> => {
+  return new Promise(resolve => {
+    resolve([{ id: 1, title: "Phone" }]);
+  });
+};
+
+getProducts().then(products => {
+  console.log(products); // [{ id: 1, title: "Phone" }]
+});
+
+// Типізація fetch
+interface User3 {
+  id: number;
+  name: string;
+  email: string;
+}
+
+const fetchUser = async (userId: number): Promise<User3> => {
+  const response = await fetch(`https://api.example.com/users/${userId}`);
+  const data = (await response.json()) as User3;
+  return data;
+};
+
+const fetchUsers = async (): Promise<User3[]> => {
+  const response = await fetch("https://api.example.com/users");
+  const data = (await response.json()) as User3[];
+  return data;
+};
+
+//
+import axios from "axios";
+
+const fetchUserA = async (userId: number): Promise<User3> => {
+  const response = await axios.get<User3>(`https://api.example.com/users/${userId}`);
+  return response.data;
+};
+
+const fetchUsersA = async (): Promise<User3[]> => {
+  const response = await axios.get<User3[]>("https://api.example.com/users");
+  return response.data;
+};
+
+//
