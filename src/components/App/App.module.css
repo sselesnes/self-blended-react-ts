@@ -1,9 +1,23 @@
+/* Mobile devices */
 .container {
-  padding: 2rem;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  min-width: 320px;
+  max-width: 360px;
+  padding: 0 20px;
+  margin: 0 auto;
 }
-.text {
+
+/* Tablet devices */
+@media only screen and (min-width: 768px) {
+  .container {
+    max-width: 768px;
+    padding: 0 32px;
+  }
+}
+
+/*Desktop devices */
+@media only screen and (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+    padding: 0 32px;
+  }
 }
