@@ -1,12 +1,8 @@
 import css from "./Benefits.module.css";
 import clsx from "clsx";
+import type { Benefit } from "../../types/types";
 
-interface BenefitsProps {
-  name: string;
-  color: string;
-}
-
-export default function Benefits(props: BenefitsProps) {
+export default function Benefits(props: Benefit) {
   return (
     <li>
       <h3

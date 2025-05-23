@@ -21,7 +21,7 @@ export default function App() {
       <Header clicks={clicks} />
       <Hero setClicks={setClicks} clicks={clicks} />
       {benefits.length && (
-        <ul>
+        <ul className={css.benefits}>
           {benefits.map((benefit, index) => (
             <Benefits key={index} name={benefit.name} color={benefit.color} />
           ))}
