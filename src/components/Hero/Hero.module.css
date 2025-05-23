@@ -5,14 +5,14 @@
   font-size: 5rem;
   line-height: 1;
 }
-.container span {
+.container button {
   font-size: 5.8rem;
 }
 @media only screen and (min-width: 768px) {
   .container {
     font-size: 13rem;
   }
-  .container span {
+  .container button {
     font-size: 15rem;
   }
 }
@@ -21,7 +21,7 @@
   .container {
     font-size: 22rem;
   }
-  .container span {
+  .container button {
     font-size: 25.5rem;
   }
 }
