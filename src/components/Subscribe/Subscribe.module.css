@@ -1,0 +1,32 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+  font-size: 3rem;
+}
+label {
+  text-align: start;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  font-size: 2rem;
+}
+.button {
+  margin: 2rem;
+  max-width: 20rem;
+  align-self: center;
+}
+input,
+textarea {
+  border: 1px solid black;
+  border-radius: 8px;
+  padding: 8px 20px;
+  &:hover,
+  &:focus,
+  &:active,
+  &:focus-visible {
+    outline: none;
+    border-color: inherit;
+  }
+}
