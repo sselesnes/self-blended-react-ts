@@ -6,14 +6,25 @@ import type { Benefit } from "../../types/types";
 import { useState } from "react";
 import Subscribe from "../Subscribe/Subscribe";
 import Modal from "../Modal/Modal";
+import Crud from "../Crud/CRUD";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2, // Повторювати запит 2 рази у разі помилки
+      staleTime: 5 * 60 * 1000, // Дані свіжі 5 хвилин
+    },
+  },
+});
 
 export default function App() {
   const benefits: Benefit[] = [
-    { name: "Швидка доставка", color: "#F00" },
-    { name: "Гнучкі знижки", color: "#0F0" },
-    { name: "Цілодобова підтримка", color: "#00F" },
-    { name: "Ексклюзивні пропозиції", color: "#0FF" },
-    { name: "Гарантія якості", color: "#FF0" },
+    { name: "Fast delivery", color: "#F00" },
+    { name: "Flexible discounts", color: "#0F0" },
+    { name: "24/7 support", color: "#00F" },
+    { name: "Exclusive offers", color: "#0FF" },
+    { name: "Quality guarantee", color: "#FF0" },
   ];
 
   const [clicks, setClicks] = useState(0);
@@ -29,7 +40,11 @@ export default function App() {
   return (
     <div className={css.container}>
       <Header clicks={clicks} />
-      <Hero setClicks={setClicks} clicks={clicks} />
+      {/* QueryClientProvider має обгортати компонент на вищому рівні ієрархії додатка, а не всередині самого компонента */}
+      <QueryClientProvider client={queryClient}>
+        <Crud />
+      </QueryClientProvider>
+      {/* <Hero setClicks={setClicks} clicks={clicks} /> */}
       {benefits.length && (
         <ul className={css.benefits}>
           {benefits.map((benefit, index) => (

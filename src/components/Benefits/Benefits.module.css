@@ -15,14 +15,14 @@
 
 @media only screen and (min-width: 768px) {
   .benefit {
-    font-size: 3rem;
+    font-size: 2rem;
     /* padding-left: 10rem; */
   }
 }
 
 @media only screen and (min-width: 1280px) {
   .benefit {
-    font-size: 5rem;
+    font-size: 3rem;
     /* padding-left: 8rem; */
     line-height: 1.5;
   }
