@@ -3,6 +3,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
+import sanitizeHtml from "sanitize-html";
 
 interface Post {
   id: number;
@@ -10,43 +11,46 @@ interface Post {
   body: string;
 }
 
-interface FetchPostsResponse {
-  posts: Post[];
-}
-
-// Отримання постів
-const fetchPosts = async (searchText: string): Promise<Post[]> => {
+const fetchPosts = async (searchText: string) => {
   if (!searchText.trim()) return [];
-  const res = await axios.get<FetchPostsResponse>("https://dummyjson.com/posts/search", {
+  const response = await axios.get("https://dummyjson.com/posts/search", {
     params: { q: searchText, limit: 5 },
   });
-  return res.data.posts;
+  return response.data.posts as Post[];
 };
 
-// HTML-рядкок з підсвічуванням
-const highlightText = (text: string, query: string): string => {
-  if (!query.trim()) return text;
+// Підсвічування тексту
+const highlightText = (text: string, query: string) => {
+  // Санітизуємо вхідні дані
+  const cleanText = sanitizeHtml(text, { allowedTags: [], allowedAttributes: {} });
+  const cleanQuery = sanitizeHtml(query, { allowedTags: [], allowedAttributes: {} });
 
-  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
-  return text
-    .split(regex)
-    .map(part => (regex.test(part) ? `<span class="${css.highlight}">${part}</span>` : part))
-    .join("");
+  if (!cleanQuery.trim()) return [cleanText];
+  const regex = new RegExp(`(${cleanQuery})`, "gi");
+  const parts = cleanText.split(regex);
+  return parts.map((part, index) =>
+    regex.test(part) ? (
+      <span key={index} className={css.highlight}>
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
 };
 
 export default function Debounce() {
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [debouncedSearchQuery] = useDebounce(searchQuery, 500); // Затримка, мс
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery] = useDebounce(searchQuery, 500); // Затримка, мс
 
   const {
     data: posts,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["posts", debouncedSearchQuery],
-    queryFn: () => fetchPosts(debouncedSearchQuery),
-    placeholderData: previousData => previousData,
-    enabled: !!debouncedSearchQuery.trim(),
+    queryKey: ["posts", debouncedQuery],
+    queryFn: () => fetchPosts(debouncedQuery),
+    enabled: !!debouncedQuery.trim(),
   });
 
   return (
@@ -57,7 +61,6 @@ export default function Debounce() {
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}
         placeholder="Пошук постів..."
-        autoFocus
       />
       {isLoading && <p>Завантаження...</p>}
       {error && <p>Помилка: {error.message}</p>}
@@ -65,21 +68,13 @@ export default function Debounce() {
         <ul className={css.list}>
           {posts.map(post => (
             <li key={post.id} className={css.item}>
-              <h3
-                dangerouslySetInnerHTML={{
-                  __html: highlightText(post.title, debouncedSearchQuery),
-                }}
-              />
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: highlightText(post.body, debouncedSearchQuery),
-                }}
-              />
+              <h3>{highlightText(post.title, debouncedQuery)}</h3>
+              <p>{highlightText(post.body, debouncedQuery)}</p>
             </li>
           ))}
         </ul>
       ) : (
-        !isLoading && <p>Немає результатів пошуку</p>
+        !isLoading && <p>Немає результатів</p>
       )}
     </div>
   );
