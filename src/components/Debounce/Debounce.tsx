@@ -3,13 +3,15 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
-import sanitizeHtml from "sanitize-html";
+import { Parser } from "html-to-react"; // sanitarize
 
 interface Post {
   id: number;
   title: string;
   body: string;
 }
+
+const parser = new Parser();
 
 const fetchPosts = async (searchText: string) => {
   if (!searchText.trim()) return [];
@@ -21,22 +23,11 @@ const fetchPosts = async (searchText: string) => {
 
 // Підсвічування тексту
 const highlightText = (text: string, query: string) => {
-  // Санітизуємо вхідні дані
-  const cleanText = sanitizeHtml(text, { allowedTags: [], allowedAttributes: {} });
-  const cleanQuery = sanitizeHtml(query, { allowedTags: [], allowedAttributes: {} });
-
-  if (!cleanQuery.trim()) return [cleanText];
+  const cleanQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (!cleanQuery.trim()) return parser.parse(text);
   const regex = new RegExp(`(${cleanQuery})`, "gi");
-  const parts = cleanText.split(regex);
-  return parts.map((part, index) =>
-    regex.test(part) ? (
-      <span key={index} className={css.highlight}>
-        {part}
-      </span>
-    ) : (
-      part
-    )
-  );
+  const highlightedHtml = text.replace(regex, `<span class="${css.highlight}">$1</span>`);
+  return parser.parse(highlightedHtml);
 };
 
 export default function Debounce() {
