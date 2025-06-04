@@ -11,7 +11,8 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
+    "noEmit": false, // Змінено на false
+    "composite": true, // Додано
 
     /* Linting */
     "strict": true,

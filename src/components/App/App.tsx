@@ -6,8 +6,9 @@ import type { Benefit } from "../../types/types";
 import { useState } from "react";
 import Subscribe from "../Subscribe/Subscribe";
 import Modal from "../Modal/Modal";
-import Crud from "../Crud/CRUD";
+import Crud from "../Crud/Crud";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Debounce from "../Debounce/Debounce";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,17 +42,18 @@ export default function App() {
     <div className={css.container}>
       <Header clicks={clicks} />
       {/* QueryClientProvider має обгортати компонент на вищому рівні ієрархії додатка, а не всередині самого компонента */}
-      <QueryClientProvider client={queryClient}>
-        <Crud />
-      </QueryClientProvider>
       {/* <Hero setClicks={setClicks} clicks={clicks} /> */}
-      {benefits.length && (
+      {/* {benefits.length && (
         <ul className={css.benefits}>
           {benefits.map((benefit, index) => (
             <Benefits key={index} name={benefit.name} color={benefit.color} />
           ))}
         </ul>
-      )}
+      )} */}
+      <QueryClientProvider client={queryClient}>
+        <Crud />
+        <Debounce />
+      </QueryClientProvider>
       <Subscribe onSubmit={handleSubscribe} />
       <button onClick={openModal}>Open modal</button>
       {isModalOpen && (
