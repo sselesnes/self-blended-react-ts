@@ -1,5 +1,14 @@
 import css from "./Subscribe.module.css";
 import { useId, useState } from "react";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object().shape({
+  username: Yup.string()
+    .min(2, "Username must be at least 2 characters")
+    .max(50, "Username must not exceed 50 characters")
+    .required("Username is required"),
+  email: Yup.string().email("Invalid email address").required("Email is required"),
+});
 
 interface SubscribeFormProps {
   onSubmit: (data: { username: string; email: string }) => void;
@@ -7,37 +16,75 @@ interface SubscribeFormProps {
 
 export default function Subscribe({ onSubmit }: SubscribeFormProps) {
   const [inputValue, setInputValue] = useState("");
+  const [errors, setErrors] = useState<{ username?: string; email?: string }>({});
+  const fieldId = useId();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event);
     setInputValue(event.target.value);
+    // Очищення помилки для поля username при зміні
+    if (event.target.name === "username" && errors.username) {
+      setErrors(prev => ({ ...prev, username: undefined }));
+    }
   };
 
-  const fieldId = useId();
-  const handleSubmit = (formData: FormData) => {
-    //  Тип FormData – вбудований, тому нічого додатково імпортувати не треба.
-    const username = formData.get("username") as string;
-    const email = formData.get("email") as string;
-    // formData.get() повертає значення типу FormDataEntryValue | null
-    if (typeof username === "string" && typeof email === "string") {
-      onSubmit({ username, email });
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const data = {
+      username: formData.get("username") as string,
+      email: formData.get("email") as string,
+    };
+
+    try {
+      // Валідація даних Yup
+      await validationSchema.validate(data, { abortEarly: false });
+      setErrors({}); // Очищення помилок, якщо валідація успішна
+      onSubmit(data); // Виклик функції onSubmit з валідними даними
+    } catch (validationError) {
+      // Обробка помилок валідації
+      if (validationError instanceof Yup.ValidationError) {
+        const errorMessages: { username?: string; email?: string } = {};
+        validationError.inner.forEach(error => {
+          if (error.path) {
+            errorMessages[error.path as keyof typeof errorMessages] = error.message;
+          }
+        });
+        setErrors(errorMessages);
+      }
     }
   };
 
   return (
-    <form className={css.form} action={handleSubmit}>
-      <label htmlFor={`${fieldId}-name`}>Name</label>
+    <form className={css.form} onSubmit={handleSubmit}>
+      <label htmlFor={`${fieldId}-username`}>Name</label>
       <input
         type="text"
         name="username"
-        // Subscribe contains an input of type text with both value and defaultValue props. Input elements must be either controlled or uncontrolled (specify either the value prop, or the defaultValue prop, but not both). Decide between using a controlled or uncontrolled input element and remove one of these props.
-        // defaultValue="John Doe"
         id={`${fieldId}-username`}
         value={inputValue}
         onChange={handleChange}
+        aria-invalid={!!errors.username}
+        aria-describedby={errors.username ? `${fieldId}-username-error` : undefined}
       />
+      {errors.username && (
+        <div id={`${fieldId}-username-error`} className={css.error}>
+          {errors.username}
+        </div>
+      )}
       <label htmlFor={`${fieldId}-email`}>E-mail</label>
-      <input type="email" name="email" defaultValue="someone@ukr.net" id={`${fieldId}-email`} />
+      <input
+        type="text"
+        name="email"
+        defaultValue="someone@ukr.net"
+        id={`${fieldId}-email`}
+        aria-invalid={!!errors.email}
+        aria-describedby={errors.email ? `${fieldId}-email-error` : undefined}
+      />
+      {errors.email && (
+        <div id={`${fieldId}-email-error`} className={css.error}>
+          {errors.email}
+        </div>
+      )}
       <button className={css.button} type="submit">
         Submit
       </button>
