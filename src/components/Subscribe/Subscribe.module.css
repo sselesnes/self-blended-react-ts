@@ -30,3 +30,21 @@ textarea {
     border-color: inherit;
   }
 }
+[id$="-username-wrapper"],
+[id$="-email-wrapper"] {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.error {
+  position: absolute;
+  top: 102%;
+  left: 0;
+  padding-top: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  align-self: baseline;
+  color: #f00;
+}

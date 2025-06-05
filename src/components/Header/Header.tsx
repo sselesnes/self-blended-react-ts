@@ -39,7 +39,7 @@ export default function Header({ clicks }: HeaderProps) {
       <img src={reactLogo} alt="React logo" width="64" />
       <p className={css.text}>Hello App</p>
       <p>Час: {timeString}</p>
-      <p>Кількість кліків: {clicks}</p>
+      {!!clicks && <p>Кількість кліків: {clicks}</p>}
     </div>
   );
 }
